@@ -4,4 +4,5 @@ export interface Document {
   summary: string;
   dataUri: string;
   createdAt: Date;
+  subject: string;
 }

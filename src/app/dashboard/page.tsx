@@ -1,9 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { UploadPDF } from '@/components/UploadPDF';
-import Link from 'next/link';
-import { FileText, ArrowRight } from 'lucide-react';
 import { SubjectSelector } from '@/components/SubjectSelector';
 
 export default function DashboardPage() {
@@ -18,7 +15,6 @@ export default function DashboardPage() {
       </div>
 
       <SubjectSelector />
-
     </div>
   );
 }

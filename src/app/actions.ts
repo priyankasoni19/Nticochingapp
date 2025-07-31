@@ -8,7 +8,8 @@ import type { ContentExtractionOutput } from '@/ai/flows/content-extraction';
 export async function getSummary(
   id: string,
   name: string,
-  dataUri: string
+  dataUri: string,
+  subject: string
 ): Promise<Document> {
   try {
     const { summary } = await pdfSummarization({ pdfDataUri: dataUri });
@@ -17,6 +18,7 @@ export async function getSummary(
       name,
       summary,
       dataUri,
+      subject,
       createdAt: new Date(),
     };
   } catch (error) {
@@ -27,6 +29,7 @@ export async function getSummary(
       name,
       summary: 'Could not generate summary for this document.',
       dataUri,
+      subject,
       createdAt: new Date(),
     };
   }
@@ -42,7 +45,8 @@ export async function getExtractedContent(
   } catch (error) {
     console.error('Error in getExtractedContent:', error);
     return {
-      extractedContent: 'Sorry, I could not extract the content. Please try again.',
+      extractedContent:
+        'Sorry, I could not extract the content. Please try again.',
     };
   }
 }

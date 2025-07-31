@@ -1,7 +1,14 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useCallback,
+} from 'react';
 import type { Document } from '@/lib/types';
+import { SubjectProvider } from '@/components/SubjectSelector';
 
 interface DocumentContextType {
   documents: Document[];
@@ -10,7 +17,9 @@ interface DocumentContextType {
   findDocument: (id: string) => Document | undefined;
 }
 
-const DocumentContext = createContext<DocumentContextType | undefined>(undefined);
+const DocumentContext = createContext<DocumentContextType | undefined>(
+  undefined
+);
 
 export function DocumentProvider({ children }: { children: ReactNode }) {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -23,13 +32,18 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
     setDocuments((prev) => prev.filter((doc) => doc.id !== id));
   }, []);
 
-  const findDocument = useCallback((id: string) => {
-    return documents.find((doc) => doc.id === id);
-  }, [documents]);
+  const findDocument = useCallback(
+    (id: string) => {
+      return documents.find((doc) => doc.id === id);
+    },
+    [documents]
+  );
 
   return (
-    <DocumentContext.Provider value={{ documents, addDocument, deleteDocument, findDocument }}>
-      {children}
+    <DocumentContext.Provider
+      value={{ documents, addDocument, deleteDocument, findDocument }}
+    >
+      <SubjectProvider>{children}</SubjectProvider>
     </DocumentContext.Provider>
   );
 }
