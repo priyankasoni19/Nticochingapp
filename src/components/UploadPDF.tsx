@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -27,7 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, PlusCircle } from 'lucide-react';
 import { useSubjects } from './SubjectSelector';
 
-export function UploadPDF() {
+export function UploadPDF({ subject: preselectedSubject }: { subject?: string }) {
   const [file, setFile] = useState<File | null>(null);
   const [selectedSubject, setSelectedSubject] = useState('');
   const [isUploading, setIsUploading] = useState(false);
@@ -35,6 +35,12 @@ export function UploadPDF() {
   const { addDocument } = useDocuments();
   const { toast } = useToast();
   const { subjects } = useSubjects();
+
+  useEffect(() => {
+    if (preselectedSubject) {
+      setSelectedSubject(preselectedSubject);
+    }
+  }, [preselectedSubject]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -79,7 +85,9 @@ export function UploadPDF() {
           description: `${file.name} has been uploaded and summarized.`,
         });
         setFile(null);
-        setSelectedSubject('');
+        if (!preselectedSubject) {
+            setSelectedSubject('');
+        }
         setIsOpen(false);
       } catch (error) {
         toast({
@@ -126,21 +134,23 @@ export function UploadPDF() {
               onChange={handleFileChange}
             />
           </div>
-          <div className="grid w-full max-w-sm items-center gap-1.5">
-            <Label htmlFor="subject">Subject</Label>
-            <Select onValueChange={setSelectedSubject} value={selectedSubject}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a subject" />
-              </SelectTrigger>
-              <SelectContent>
-                {subjects.map((subject) => (
-                  <SelectItem key={subject} value={subject}>
-                    {subject}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {!preselectedSubject && (
+            <div className="grid w-full max-w-sm items-center gap-1.5">
+              <Label htmlFor="subject">Subject</Label>
+              <Select onValueChange={setSelectedSubject} value={selectedSubject}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects.map((subject) => (
+                    <SelectItem key={subject} value={subject}>
+                      {subject}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
         <DialogFooter>
           <DialogClose asChild>
