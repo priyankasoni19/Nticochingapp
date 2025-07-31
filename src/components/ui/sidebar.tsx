@@ -1,88 +1,261 @@
-import type {Config} from 'tailwindcss';
+'use client';
 
-export default {
-  darkMode: ['class'],
-  content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
-  ],
-  theme: {
-    container: {
-      center: true,
-      padding: "2rem",
-      screens: {
-        "2xl": "1400px",
+import * as React from 'react';
+import { cva } from 'class-variance-authority';
+import { X, Menu } from 'lucide-react';
+
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { useMobile } from '@/hooks/use-mobile';
+import { Sheet, SheetContent, SheetHeader as SheetHeaderPrimitive } from '@/components/ui/sheet';
+
+const SidebarContext = React.createContext<{
+  isOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  isMobile: boolean;
+}>({
+  isOpen: false,
+  setIsOpen: () => null,
+  isMobile: false,
+});
+
+export const useSidebar = () => {
+  const context = React.useContext(SidebarContext);
+
+  if (!context) {
+    throw new Error('useSidebar must be used within a SidebarProvider');
+  }
+
+  return context;
+};
+
+export function SidebarProvider({ children }: { children: React.ReactNode }) {
+  const isMobile = useMobile();
+  const [isOpen, setIsOpen] = React.useState(!isMobile);
+
+  React.useEffect(() => {
+    if (isMobile) {
+      setIsOpen(false);
+    } else {
+      setIsOpen(true);
+    }
+  }, [isMobile]);
+
+  return (
+    <SidebarContext.Provider
+      value={{
+        isOpen,
+        setIsOpen,
+        isMobile,
+      }}
+    >
+      {children}
+    </SidebarContext.Provider>
+  );
+}
+
+const sidebarVariants = cva(
+  'z-40 flex h-full shrink-0 flex-col gap-4 border-r bg-card transition-all',
+  {
+    variants: {
+      isOpen: {
+        true: 'w-72 p-4',
+        false: 'w-0 p-0 border-none',
       },
     },
-    extend: {
-      fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
-        code: ['monospace'],
-      },
-      colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
-        },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
-        },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
-        chart: {
-          '1': 'hsl(var(--chart-1))',
-          '2': 'hsl(var(--chart-2))',
-          '3': 'hsl(var(--chart-3))',
-          '4': 'hsl(var(--chart-4))',
-          '5': 'hsl(var(--chart-5))',
-        },
-      },
-      borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
-      },
-      keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        },
-      },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
-      },
+    defaultVariants: {
+      isOpen: true,
+    },
+  }
+);
+
+
+const SidebarRoot = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, children, ...props }, ref) => {
+    const { isOpen, setIsOpen, isMobile } = useSidebar();
+
+    if (isMobile) {
+      return (
+        <>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="absolute left-4 top-4 z-50"
+            onClick={() => setIsOpen(true)}
+          >
+            <Menu />
+          </Button>
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetContent side="left" className="w-72 p-4">
+              <SheetHeaderPrimitive className="mb-4">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="absolute right-4 top-4"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <X />
+                </Button>
+              </SheetHeaderPrimitive>
+              <div ref={ref} className={cn('flex h-full flex-col gap-4', className)} {...props}>
+                {children}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </>
+      );
+    }
+
+    return (
+      <div
+        ref={ref}
+        data-testid="sidebar"
+        className={cn(sidebarVariants({ isOpen }), className)}
+        {...props}
+      >
+        {isOpen && children}
+      </div>
+    );
+  }
+);
+SidebarRoot.displayName = 'Sidebar';
+
+
+const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ className, ...props }, ref) => {
+    const { isOpen } = useSidebar();
+    return isOpen ? (
+        <div
+        ref={ref}
+        className={cn('flex h-12 shrink-0 items-center', className)}
+        {...props}
+        />
+    ) : null;
+    }
+);
+SidebarHeader.displayName = 'SidebarHeader';
+
+const SidebarContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ className, ...props }, ref) => {
+    const { isOpen } = useSidebar();
+    return isOpen ? (
+        <div ref={ref} className={cn('flex-1 overflow-auto', className)} {...props} />
+    ) : null;
+    }
+);
+SidebarContent.displayName = 'SidebarContent';
+
+
+const SidebarFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ className, ...props }, ref) => {
+    const { isOpen } = useSidebar();
+    return isOpen ? (
+        <div
+        ref={ref}
+        className={cn('flex h-16 shrink-0 items-center', className)}
+        {...props}
+        />
+    ) : null;
+    }
+);
+SidebarFooter.displayName = 'SidebarFooter';
+
+const sidebarMenuVariants = cva('flex flex-col', {
+  variants: {
+    isOpen: {
+      true: 'gap-2',
+      false: 'gap-0',
     },
   },
-  plugins: [require('tailwindcss-animate')],
-} satisfies Config;
+  defaultVariants: {
+    isOpen: true,
+  },
+});
+
+const SidebarMenu = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ className, ...props }, ref) => {
+    const { isOpen } = useSidebar();
+    return (
+        <div
+        ref={ref}
+        className={cn(sidebarMenuVariants({ isOpen }), className)}
+        {...props}
+        />
+    );
+    }
+);
+SidebarMenu.displayName = 'SidebarMenu';
+
+const SidebarMenuItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+    ({ className, ...props }, ref) => {
+    return <div ref={ref} className={cn('', className)} {...props} />;
+    }
+);
+SidebarMenuItem.displayName = 'SidebarMenuItem';
+
+const SidebarMenuButton = React.forwardRef<
+  React.ElementRef<typeof Button>,
+  React.ComponentPropsWithoutRef<typeof Button> & { isActive?: boolean }
+>(({ isActive, className, children, ...props }, ref) => {
+  const { isOpen } = useSidebar();
+
+  return (
+    <Button
+      ref={ref}
+      variant={isActive ? 'secondary' : 'ghost'}
+      className={cn(
+        'h-12 w-full',
+        {
+          'justify-start': isOpen,
+          'justify-center': !isOpen,
+        },
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </Button>
+  );
+});
+SidebarMenuButton.displayName = 'SidebarMenuButton';
+
+const SidebarInset = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => {
+    const { isOpen, isMobile } = useSidebar();
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          'flex h-screen flex-1 flex-col transition-all',
+          !isMobile && (isOpen ? 'ml-72' : 'ml-0'),
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+);
+SidebarInset.displayName = 'SidebarInset';
+
+const Sidebar = Object.assign(SidebarRoot, {
+    Header: SidebarHeader,
+    Content: SidebarContent,
+    Footer: SidebarFooter,
+    Menu: SidebarMenu,
+    MenuItem: SidebarMenuItem,
+    MenuButton: SidebarMenuButton,
+    Inset: SidebarInset,
+    Provider: SidebarProvider,
+  });
+
+export {
+    Sidebar,
+    SidebarProvider,
+    SidebarHeader,
+    SidebarContent,
+    SidebarFooter,
+    SidebarMenu,
+    SidebarMenuItem,
+    SidebarMenuButton,
+    SidebarInset,
+};
