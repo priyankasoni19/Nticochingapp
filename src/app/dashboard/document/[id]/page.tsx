@@ -47,16 +47,17 @@ export default function DocumentDetailPage() {
       });
     }
   }, [messages]);
-  
-  if (!document) {
-    useEffect(() => {
-      // notFound() must be used in a component that is rendered on the server
-      // or in an effect.
+
+  useEffect(() => {
+    if (!document) {
       notFound();
-    }, []);
+    }
+  }, [document]);
+
+  if (!document) {
     return null;
   }
-  
+
   const handleDelete = () => {
     if (document) {
       const subject = document.subject;
