@@ -2,6 +2,8 @@ import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { DocumentProvider } from '@/contexts/DocumentContext';
 
 export const metadata: Metadata = {
   title: 'NTI COCHING APP',
@@ -21,15 +23,19 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-          <Toaster />
-        </ThemeProvider>
+        <AuthProvider>
+          <DocumentProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+              <Toaster />
+            </ThemeProvider>
+          </DocumentProvider>
+        </AuthProvider>
       </body>
     </html>
   );

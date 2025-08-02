@@ -2,6 +2,9 @@
 
 import { File, Home, LogOut, Settings, User } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
+import { useEffect } from 'react';
+
 
 import {
   Sidebar,
@@ -14,7 +17,6 @@ import {
   SidebarProvider,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { DocumentProvider } from '@/contexts/DocumentContext';
 import { Logo } from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import {
@@ -26,7 +28,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { usePathname } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function DashboardLayout({
   children,
@@ -34,9 +36,25 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user === null) {
+      router.push('/');
+    }
+  }, [user, router]);
+
+  const handleLogout = () => {
+    logout();
+    router.push('/');
+  };
+  
+  if (!user) {
+    return null;
+  }
 
   return (
-    <DocumentProvider>
       <SidebarProvider>
         <Sidebar>
           <SidebarHeader>
@@ -82,11 +100,9 @@ export default function DashboardLayout({
           <SidebarFooter>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/">
+                <SidebarMenuButton onClick={handleLogout}>
                     <LogOut />
                     <span>Logout</span>
-                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -103,7 +119,7 @@ export default function DashboardLayout({
                       alt="User"
                       data-ai-hint="user avatar"
                     />
-                    <AvatarFallback>U</AvatarFallback>
+                    <AvatarFallback>{user.email?.[0].toUpperCase() || 'U'}</AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -121,11 +137,9 @@ export default function DashboardLayout({
                   <span>Profile</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href="/">
+                <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Logout</span>
-                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -133,6 +147,5 @@ export default function DashboardLayout({
           <main className="flex-1 p-4 md:p-6">{children}</main>
         </SidebarInset>
       </SidebarProvider>
-    </DocumentProvider>
   );
 }
