@@ -1,6 +1,8 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -35,6 +37,7 @@ export function UploadPDF({ subject: preselectedSubject }: { subject?: string })
   const { addDocument } = useDocuments();
   const { toast } = useToast();
   const { subjects } = useSubjects();
+  const router = useRouter();
 
   useEffect(() => {
     if (preselectedSubject) {
@@ -89,6 +92,7 @@ export function UploadPDF({ subject: preselectedSubject }: { subject?: string })
             setSelectedSubject('');
         }
         setIsOpen(false);
+        router.push(`/dashboard/subjects/${encodeURIComponent(selectedSubject)}`);
       } catch (error) {
         toast({
           title: 'Upload failed',
