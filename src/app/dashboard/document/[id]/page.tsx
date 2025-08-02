@@ -102,38 +102,51 @@ export default function DocumentDetailPage() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <Button asChild variant="outline" size="icon">
+          <Button asChild variant="outline">
             <Link href={`/dashboard/subjects/${encodeURIComponent(document.subject)}`}>
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back
             </Link>
           </Button>
           <h1 className="truncate text-xl font-semibold md:text-2xl">{document.name}</h1>
         </div>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="destructive">
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete your document.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <div className="flex w-full gap-2 sm:w-auto">
+          <Button asChild className="flex-1 sm:flex-none">
+            <a
+              href={document.dataUri}
+              download={document.name}
+              className="flex items-center"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Download PDF
+            </a>
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive" className="flex-1 sm:flex-none">
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete your document.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
       </div>
 
-      <div className="grid h-[calc(100vh-8rem-1px)] grid-cols-1 gap-4 lg:grid-cols-2">
+      <div className="grid h-[calc(100vh-10rem)] grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="flex flex-col">
           <CardHeader>
             <CardTitle>Document Details</CardTitle>
@@ -154,27 +167,19 @@ export default function DocumentDetailPage() {
               </div>
               <div>
                 <h3 className="mb-2 text-lg font-semibold">Summary</h3>
-                <ScrollArea className="h-48 rounded-md border p-4">
+                <ScrollArea className="h-48 rounded-md border p-4 lg:h-[calc(100vh-28rem)]">
                   <p className="text-sm text-muted-foreground">
                     {document.summary}
                   </p>
                 </ScrollArea>
               </div>
             </div>
-            <Button asChild>
-                <a
-                  href={document.dataUri}
-                  download={document.name}
-                >
-                  <Download className="mr-2" />
-                  Download PDF
-                </a>
-            </Button>
           </CardContent>
         </Card>
         <Card className="flex flex-1 flex-col">
           <CardHeader>
             <CardTitle>Content Extraction</CardTitle>
+            <CardDescription>Ask questions about your document.</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-1 flex-col gap-4 overflow-hidden">
             <ScrollArea className="flex-1 pr-4" ref={scrollAreaRef}>
@@ -252,3 +257,5 @@ export default function DocumentDetailPage() {
     </div>
   );
 }
+
+    
