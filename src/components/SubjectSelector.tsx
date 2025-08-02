@@ -41,6 +41,7 @@ const SubjectContext = createContext<SubjectContextType | undefined>(undefined);
 
 export function SubjectProvider({ children }: { children: ReactNode }) {
   const [subjects, setSubjects] = useState<string[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     try {
@@ -50,15 +51,18 @@ export function SubjectProvider({ children }: { children: ReactNode }) {
       console.error('Failed to load subjects from local storage', error);
       setSubjects(initialSubjects);
     }
+    setIsLoaded(true);
   }, []);
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem('subjects', JSON.stringify(subjects));
-    } catch (error) {
-      console.error('Failed to save subjects to local storage', error);
+    if (isLoaded) {
+      try {
+        window.localStorage.setItem('subjects', JSON.stringify(subjects));
+      } catch (error) {
+        console.error('Failed to save subjects to local storage', error);
+      }
     }
-  }, [subjects]);
+  }, [subjects, isLoaded]);
 
   const addSubject = (subject: string) => {
     if (subject.trim() && !subjects.includes(subject.trim())) {

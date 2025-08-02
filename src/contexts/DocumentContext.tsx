@@ -45,7 +45,9 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      window.localStorage.setItem('documents', JSON.stringify(documents));
+      if (documents.length > 0) {
+        window.localStorage.setItem('documents', JSON.stringify(documents));
+      }
     } catch (error) {
       console.error('Failed to save documents to local storage', error);
     }
@@ -56,7 +58,13 @@ export function DocumentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const deleteDocument = useCallback((id: string) => {
-    setDocuments((prev) => prev.filter((doc) => doc.id !== id));
+    setDocuments((prev) => {
+      const newDocs = prev.filter((doc) => doc.id !== id);
+      if (newDocs.length === 0) {
+        window.localStorage.removeItem('documents');
+      }
+      return newDocs;
+    });
   }, []);
 
   const findDocument = useCallback(
