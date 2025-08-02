@@ -71,7 +71,7 @@ export default function DashboardLayout({
                   asChild
                   isActive={pathname === '/dashboard/settings'}
                 >
-                  <Link href="#">
+                  <Link href="/dashboard/settings">
                     <Settings />
                     <span>Settings</span>
                   </Link>
@@ -110,9 +110,11 @@ export default function DashboardLayout({
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/settings">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Settings</span>
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <User className="mr-2 h-4 w-4" />
