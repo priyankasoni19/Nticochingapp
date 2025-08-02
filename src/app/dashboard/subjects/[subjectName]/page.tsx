@@ -14,10 +14,12 @@ import {
 import { FileText, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UploadPDF } from '@/components/UploadPDF';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function SubjectDetailsPage() {
   const { subjectName } = useParams();
   const { documents } = useDocuments();
+  const { user } = useAuth();
 
   if (!subjectName) {
     notFound();
@@ -44,7 +46,7 @@ export default function SubjectDetailsPage() {
             </p>
           </div>
         </div>
-        <UploadPDF subject={decodedSubjectName} />
+        {user?.role === 'admin' && <UploadPDF subject={decodedSubjectName} />}
       </div>
       {subjectDocuments.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -82,7 +84,7 @@ export default function SubjectDetailsPage() {
             <p className="text-muted-foreground">
               There are no documents in this subject.
               <br />
-              Import a PDF to get started.
+              {user?.role === 'admin' && 'Import a PDF to get started.'}
             </p>
           </CardContent>
         </Card>

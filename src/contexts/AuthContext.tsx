@@ -11,11 +11,12 @@ import {
 type User = {
   name?: string;
   email: string;
+  role: 'admin' | 'student';
 };
 
 interface AuthContextType {
   user: User | null;
-  login: (user: User) => void;
+  login: (user: Omit<User, 'role'>) => void;
   logout: () => void;
 }
 
@@ -36,10 +37,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const login = (user: User) => {
-    setUser(user);
+  const login = (userData: Omit<User, 'role'>) => {
+    const role = userData.email === 'm@example.com' ? 'admin' : 'student';
+    const userWithRole = { ...userData, role };
+    setUser(userWithRole);
     try {
-      window.localStorage.setItem('user', JSON.stringify(user));
+      window.localStorage.setItem('user', JSON.stringify(userWithRole));
     } catch (error) {
       console.error('Failed to save user to local storage', error);
     }

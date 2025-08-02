@@ -13,8 +13,8 @@ import { useState } from 'react';
 export default function SignupPage() {
   const router = useRouter();
   const { login } = useAuth();
-  const [name, setName] = useState('Max');
-  const [email, setEmail] = useState('m@example.com');
+  const [name, setName] = useState('Student');
+  const [email, setEmail] = useState('student@example.com');
   const [password, setPassword] = useState('password');
 
   const handleSignup = (e: React.FormEvent) => {
