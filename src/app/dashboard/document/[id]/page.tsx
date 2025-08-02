@@ -1,13 +1,23 @@
+
 'use client';
 
 import { useDocuments } from '@/contexts/DocumentContext';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Send, Bot, User, Loader2, Trash2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  Send,
+  Bot,
+  User,
+  Loader2,
+  Trash2,
+  Download,
+  FileText,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { getExtractedContent } from '@/app/actions';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -31,8 +41,8 @@ type Message = {
 export default function DocumentDetailPage() {
   const { id } = useParams();
   const { findDocument, deleteDocument } = useDocuments();
-  const document = findDocument(id as string);
   const router = useRouter();
+  const document = findDocument(id as string);
 
   const [query, setQuery] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
@@ -125,22 +135,41 @@ export default function DocumentDetailPage() {
 
       <div className="grid h-[calc(100vh-8rem-1px)] grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="flex flex-col">
-          <CardContent className="flex-1 p-2">
-            <object data={document.dataUri} type="application/pdf" className="h-full w-full">
-              <div className="flex h-full w-full flex-col items-center justify-center bg-muted">
-                <p className="p-4 text-center text-muted-foreground">
-                  It appears your browser doesn&apos;t support embedding PDFs. You can{' '}
-                  <a
-                    href={document.dataUri}
-                    download={document.name}
-                    className="font-medium text-primary underline"
-                  >
-                    download the PDF
-                  </a>{' '}
-                  to view it.
-                </p>
+          <CardHeader>
+            <CardTitle>Document Details</CardTitle>
+            <CardDescription>
+              Summary of your uploaded document.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-1 flex-col justify-between gap-4">
+            <div className='space-y-4'>
+              <div className="flex items-center gap-3 rounded-md border p-3">
+                <FileText className="h-8 w-8 text-primary" />
+                <div className="flex-1">
+                  <p className="font-semibold truncate">{document.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Uploaded on {new Date(document.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
               </div>
-            </object>
+              <div>
+                <h3 className="mb-2 text-lg font-semibold">Summary</h3>
+                <ScrollArea className="h-48 rounded-md border p-4">
+                  <p className="text-sm text-muted-foreground">
+                    {document.summary}
+                  </p>
+                </ScrollArea>
+              </div>
+            </div>
+            <Button asChild>
+                <a
+                  href={document.dataUri}
+                  download={document.name}
+                >
+                  <Download className="mr-2" />
+                  Download PDF
+                </a>
+            </Button>
           </CardContent>
         </Card>
         <Card className="flex flex-1 flex-col">
