@@ -40,6 +40,12 @@ export default function DocumentDetailPage() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!document) {
+      notFound();
+    }
+  }, [document]);
+
+  useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTo({
         top: scrollAreaRef.current.scrollHeight,
@@ -47,12 +53,6 @@ export default function DocumentDetailPage() {
       });
     }
   }, [messages]);
-
-  useEffect(() => {
-    if (!document) {
-      notFound();
-    }
-  }, [document]);
 
   if (!document) {
     return null;
@@ -126,7 +126,21 @@ export default function DocumentDetailPage() {
       <div className="grid h-[calc(100vh-8rem-1px)] grid-cols-1 gap-4 lg:grid-cols-2">
         <Card className="flex flex-col">
           <CardContent className="flex-1 p-2">
-            <iframe src={document.dataUri} className="h-full w-full border-0" />
+            <object data={document.dataUri} type="application/pdf" className="h-full w-full">
+              <div className="flex h-full w-full flex-col items-center justify-center bg-muted">
+                <p className="p-4 text-center text-muted-foreground">
+                  It appears your browser doesn&apos;t support embedding PDFs. You can{' '}
+                  <a
+                    href={document.dataUri}
+                    download={document.name}
+                    className="font-medium text-primary underline"
+                  >
+                    download the PDF
+                  </a>{' '}
+                  to view it.
+                </p>
+              </div>
+            </object>
           </CardContent>
         </Card>
         <Card className="flex flex-1 flex-col">
