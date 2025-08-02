@@ -5,6 +5,7 @@ import React, {
   createContext,
   useContext,
   ReactNode,
+  useEffect,
 } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -39,7 +40,25 @@ interface SubjectContextType {
 const SubjectContext = createContext<SubjectContextType | undefined>(undefined);
 
 export function SubjectProvider({ children }: { children: ReactNode }) {
-  const [subjects, setSubjects] = useState(initialSubjects);
+  const [subjects, setSubjects] = useState<string[]>([]);
+
+  useEffect(() => {
+    try {
+      const item = window.localStorage.getItem('subjects');
+      setSubjects(item ? JSON.parse(item) : initialSubjects);
+    } catch (error) {
+      console.error('Failed to load subjects from local storage', error);
+      setSubjects(initialSubjects);
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem('subjects', JSON.stringify(subjects));
+    } catch (error) {
+      console.error('Failed to save subjects to local storage', error);
+    }
+  }, [subjects]);
 
   const addSubject = (subject: string) => {
     if (subject.trim() && !subjects.includes(subject.trim())) {
@@ -72,11 +91,20 @@ export function SubjectSelector() {
   const { subjects, addSubject, removeSubject } = useSubjects();
   const [newSubject, setNewSubject] = useState('');
   const [editing, setEditing] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const handleAddSubject = () => {
     addSubject(newSubject);
     setNewSubject('');
   };
+  
+  if (!isClient) {
+    return null;
+  }
 
   return (
     <Card>
