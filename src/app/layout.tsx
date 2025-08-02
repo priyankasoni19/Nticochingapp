@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'FileFlex',
+  title: 'NTI COCHING APP',
   description: 'Manage and extract content from your PDFs with AI.',
 };
 
