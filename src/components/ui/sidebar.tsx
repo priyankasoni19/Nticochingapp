@@ -250,7 +250,6 @@ const Sidebar = Object.assign(SidebarRoot, {
 
 export {
     Sidebar,
-    SidebarProvider,
     SidebarHeader,
     SidebarContent,
     SidebarFooter,
